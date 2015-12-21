@@ -1,0 +1,25 @@
+<md-content>
+  <md-toolbar>
+    <div class="md-toolbar-tools">
+      <md-button class="md-icon-button" aria-label="Settings" ui-sref="top">
+        <img src="images/logo.png"/>
+      </md-button>
+      <h2 ng-if="!(bowser.mobile || bowser.tablet)">
+        <span>Reddit Client</span>
+      </h2>
+      <span flex></span>
+      <md-button class="md-button" aria-label="Top" ui-sref="top" ui-sref-active="active">
+        top
+      </md-button>
+      <md-button class="md-button" aria-label="Favorites" ui-sref="favorites" ui-sref-active="active">
+        favorites
+      </md-button>
+      <md-button class="md-button" aria-label="Login" ng-click="login()" ng-if="!user && !$root.loggingIn">
+        log in
+      </md-button>
+      <md-button class="md-button" aria-label="Logout" ng-click="logout()" ng-if="user && !$root.loggingIn">
+        log out {{user.name}}
+      </md-button>
+    </div>
+  </md-toolbar>
+</md-content>

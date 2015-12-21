@@ -1,0 +1,17 @@
+<div>
+  <md-content class="md-padding" layout="row" layout-wrap layout-align="center start" layout-xs="column">
+    <div
+      flex="50"
+      flex-sm="100"
+      flex-xs="100"
+      layout="column"
+      infinite-scroll='favoritesctrl.nextPage()'
+      infinite-scroll-disabled='favoritesctrl.loading'
+      infinite-scroll-distance='1'>
+      <post class="animate-repeat" ng-repeat="post in favoritesctrl.posts" data="post.data" kind="{{post.kind}}"></post>
+    </div>
+    <div class="loading" ng-if="favoritesctrl.loading">
+      <md-progress-circular md-mode="indeterminate"></md-progress-circular>
+    </div>
+  </md-content>
+</div>

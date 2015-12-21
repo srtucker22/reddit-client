@@ -1,0 +1,17 @@
+<div>
+  <md-content class="md-padding" layout="row" layout-wrap layout-align="center start" layout-xs="column">
+    <div
+      flex="50"
+      flex-sm="100"
+      flex-xs="100"
+      layout="column"
+      infinite-scroll='topctrl.nextPage()'
+      infinite-scroll-disabled='topctrl.loading'
+      infinite-scroll-distance='1'>
+      <post class="animate-repeat" ng-repeat="post in topctrl.posts" data="post.data" kind="{{post.kind}}"></post>
+    </div>
+    <div class="loading" ng-if="topctrl.loading">
+      <md-progress-circular md-mode="indeterminate"></md-progress-circular>
+    </div>
+  </md-content>
+</div>
