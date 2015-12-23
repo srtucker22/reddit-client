@@ -17,70 +17,72 @@
         return (match && match.length > 1 && match[2]) || '';
       }
 
-      var iosdevice = getFirstMatch(/(ipod|iphone|ipad)/i).toLowerCase()
-        , likeAndroid = /like android/i.test(ua)
-        , android = !likeAndroid && /android/i.test(ua)
-        , chromeBook = /CrOS/.test(ua)
-        , edgeVersion = getFirstMatch(/edge\/(\d+(\.\d+)?)/i)
-        , versionIdentifier = getFirstMatch(/version\/(\d+(\.\d+)?)/i)
-        , tablet = /tablet/i.test(ua)
-        , mobile = !tablet && /[^-]mobi/i.test(ua)
-        , result
+      var iosdevice = getFirstMatch(/(ipod|iphone|ipad)/i).toLowerCase(),
+        likeAndroid = /like android/i.test(ua),
+        android = !likeAndroid && /android/i.test(ua),
+        chromeBook = /CrOS/.test(ua),
+        edgeVersion = getFirstMatch(/edge\/(\d+(\.\d+)?)/i),
+        versionIdentifier = getFirstMatch(/version\/(\d+(\.\d+)?)/i),
+        tablet = /tablet/i.test(ua),
+        mobile = !tablet && /[^-]mobi/i.test(ua),
+        result;
 
       if (/opera|opr/i.test(ua)) {
         result = {
-          name: 'Opera'
-        , opera: t
-        , version: versionIdentifier || getFirstMatch(/(?:opera|opr)[\s\/](\d+(\.\d+)?)/i)
-        }
+          name: 'Opera',
+          opera: t,
+          version: versionIdentifier ||
+            getFirstMatch(/(?:opera|opr)[\s\/](\d+(\.\d+)?)/i)
+        };
       }
       else if (/yabrowser/i.test(ua)) {
         result = {
-          name: 'Yandex Browser'
-        , yandexbrowser: t
-        , version: versionIdentifier || getFirstMatch(/(?:yabrowser)[\s\/](\d+(\.\d+)?)/i)
-        }
+          name: 'Yandex Browser',
+          yandexbrowser: t,
+          version: versionIdentifier ||
+            getFirstMatch(/(?:yabrowser)[\s\/](\d+(\.\d+)?)/i)
+        };
       }
       else if (/windows phone/i.test(ua)) {
         result = {
-          name: 'Windows Phone'
-        , windowsphone: t
-        }
+          name: 'Windows Phone',
+          windowsphone: t
+        };
         if (edgeVersion) {
-          result.msedge = t
-          result.version = edgeVersion
+          result.msedge = t;
+          result.version = edgeVersion;
         }
         else {
-          result.msie = t
-          result.version = getFirstMatch(/iemobile\/(\d+(\.\d+)?)/i)
+          result.msie = t;
+          result.version = getFirstMatch(/iemobile\/(\d+(\.\d+)?)/i);
         }
       }
       else if (/msie|trident/i.test(ua)) {
         result = {
-          name: 'Internet Explorer'
-        , msie: t
-        , version: getFirstMatch(/(?:msie |rv:)(\d+(\.\d+)?)/i)
-        }
+          name: 'Internet Explorer',
+          msie: t,
+          version: getFirstMatch(/(?:msie |rv:)(\d+(\.\d+)?)/i)
+        };
       } else if (chromeBook) {
         result = {
-          name: 'Chrome'
-        , chromeBook: t
-        , chrome: t
-        , version: getFirstMatch(/(?:chrome|crios|crmo)\/(\d+(\.\d+)?)/i)
-        }
+          name: 'Chrome',
+          chromeBook: t,
+          chrome: t,
+          version: getFirstMatch(/(?:chrome|crios|crmo)\/(\d+(\.\d+)?)/i)
+        };
       } else if (/chrome.+? edge/i.test(ua)) {
         result = {
-          name: 'Microsoft Edge'
-        , msedge: t
-        , version: edgeVersion
-        }
+          name: 'Microsoft Edge',
+          msedge: t,
+          version: edgeVersion
+        };
       }
       else if (/chrome|crios|crmo/i.test(ua)) {
         result = {
-          name: 'Chrome'
-        , chrome: t
-        , version: getFirstMatch(/(?:chrome|crios|crmo)\/(\d+(\.\d+)?)/i)
-        }
+          name: 'Chrome',
+          chrome: t,
+          version: getFirstMatch(/(?:chrome|crios|crmo)\/(\d+(\.\d+)?)/i)
+        };
       }
       else if (iosdevice) {
         result = {
@@ -166,10 +168,10 @@
       }
       else if (/safari/i.test(ua)) {
         result = {
-          name: 'Safari'
-        , safari: t
-        , version: versionIdentifier
-        }
+          name: 'Safari',
+          safari: t,
+          version: versionIdentifier
+        };
       }
       else {
         result = {
@@ -180,23 +182,23 @@
 
       // set webkit or gecko flag for browsers based on these engines
       if (!result.msedge && /(apple)?webkit/i.test(ua)) {
-        result.name = result.name || 'Webkit'
-        result.webkit = t
+        result.name = result.name || 'Webkit';
+        result.webkit = t;
         if (!result.version && versionIdentifier) {
-          result.version = versionIdentifier
+          result.version = versionIdentifier;
         }
       } else if (!result.opera && /gecko\//i.test(ua)) {
-        result.name = result.name || 'Gecko'
-        result.gecko = t
-        result.version = result.version || getFirstMatch(/gecko\/(\d+(\.\d+)?)/i)
+        result.name = result.name || 'Gecko';
+        result.gecko = t;
+        result.version = result.version || getFirstMatch(/gecko\/(\d+(\.\d+)?)/i);
       }
 
       // set OS flags for platforms that have multiple browsers
       if (!result.msedge && (android || result.silk)) {
-        result.android = t
+        result.android = t;
       } else if (iosdevice) {
-        result[iosdevice] = t
-        result.ios = t
+        result[iosdevice] = t;
+        result.ios = t;
       }
 
       // OS version extraction
@@ -224,9 +226,9 @@
       // device type extraction
       var osMajorVersion = osVersion.split('.')[0];
       if (tablet || iosdevice == 'ipad' || (android && (osMajorVersion == 3 || (osMajorVersion == 4 && !mobile))) || result.silk) {
-        result.tablet = t
+        result.tablet = t;
       } else if (mobile || iosdevice == 'iphone' || iosdevice == 'ipod' || android || result.blackberry || result.webos || result.bada) {
-        result.mobile = t
+        result.mobile = t;
       }
 
       // Graded Browser Support
@@ -250,13 +252,13 @@
           (result.opera && result.version < 10.0) ||
           (result.ios && result.osversion && result.osversion.split('.')[0] < 6)
           ) {
-        result.c = t
-      } else result.x = t
+        result.c = t;
+      } else result.x = t;
 
-      return result
+      return result;
     }
 
-    var bowser = detect(typeof navigator !== 'undefined' ? navigator.userAgent : '')
+    var bowser = detect(typeof navigator !== 'undefined' ? navigator.userAgent : '');
 
     bowser.test = function (browserList) {
       for (var i = 0; i < browserList.length; ++i) {

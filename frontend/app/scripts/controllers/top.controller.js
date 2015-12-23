@@ -1,6 +1,6 @@
-'use strict';
-
 (function() {
+  'use strict';
+
   angular
   .module('app')
   .controller('TopCtrl', TopCtrl);
@@ -45,8 +45,8 @@
       vm.loading = true;
 
       // if we are coming back from reddit, then login
-      if ($stateParams.access_token) {
-        reddit.login($stateParams.access_token, $stateParams.state)
+      if ($stateParams['access_token']) {
+        reddit.login($stateParams['access_token'], $stateParams.state)
           .then(function() {
             $state.go('.', {code: undefined, state: undefined});
             firstPage();

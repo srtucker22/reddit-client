@@ -1,6 +1,6 @@
-'use strict';
-
 (function() {
+  'use strict';
+
   angular.module('app').config([
     '$urlRouterProvider',
     '$stateProvider',
@@ -38,7 +38,9 @@
             '<div class=\'container\'><div class=\'row\'>' +
               '<h1 class=\'col-xs-12 text-center\'>404</h1>' +
               '<h3 class=\'col-xs-12 text-center text-uppercase\'>Page Not Found</h3>' +
-              '<h4 class=\'col-xs-12 text-center text-uppercase\'>Sorry, but the page you were trying to view does not exist.</h4>' +
+              '<h4 class=\'col-xs-12 text-center text-uppercase\'>' +
+                'Sorry, but the page you were trying to view does not exist.' +
+              '</h4>' +
             '</div></div>'
         });
 

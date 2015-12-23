@@ -23,6 +23,7 @@
     var interval = 60 * 1000 * 5; // seconds we'll wait before totally refreshing the top feed going upwards
     var redirectUri = 'http://localhost:5000/?';
 
+    /*jshint validthis: true */
     var vm = this;
 
     // setup snoocore
@@ -218,7 +219,7 @@
     function postAccessToken(AUTHORIZATION_CODE, STATE) {
       var defer = $q.defer();
 
-      if (!$sessionStorage.authState === STATE) {
+      if ($sessionStorage.authState !== STATE) {
         defer.reject('INVALID_STATE');
       } else {
         delete $sessionStorage.authState; // clear the auth state
@@ -256,7 +257,7 @@
       var params = {
         before: vm[type].data[0].kind + '_' + vm[type].data[0].data.id,  // look above the topmost object
         limit: 100  // lets get as many before the topmost as possible
-      }
+      };
 
       snoocore(vm[type].uri).get(params).then(function(res) {
         vm[type].data = res.data.children.concat(vm[type].data);
