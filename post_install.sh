@@ -1,2 +1,2 @@
 #!/bin/bash
-cd ./frontend && npm install && grunt build
+cd ./frontend && ./node_modules/bower/bin/bower install && ./node_modules/grunt-cli/bin/grunt build
