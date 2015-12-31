@@ -2,8 +2,7 @@
   "name": "reddit-client",
   "main": "index.js",
   "scripts": {
-    "start": "node index.js",
-    "postinstall": "bower install"
+    "start": "node index.js"
   },
   "private": true,
   "devDependencies": {
