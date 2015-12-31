@@ -508,4 +508,8 @@ module.exports = function (grunt) {
     'test',
     'build'
   ]);
+
+  grunt.task.registerTask('heroku:production', [
+    'build'
+  ]);
 };
