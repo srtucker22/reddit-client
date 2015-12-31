@@ -3,7 +3,7 @@
   "main": "index.js",
   "scripts": {
     "start": "node index.js",
-    "postinstall": "grunt build"
+    "postinstall": "bower install && grunt build"
   },
   "private": true,
   "devDependencies": {
