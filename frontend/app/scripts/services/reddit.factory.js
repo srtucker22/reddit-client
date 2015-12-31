@@ -21,15 +21,17 @@
     $sessionStorage
   ) {
     var interval = 60 * 1000 * 5; // seconds we'll wait before totally refreshing the top feed going upwards
-    var redirectUri = 'http://localhost:5000/?';
+
+    var redirectUri = window.location.origin;
 
     /*jshint validthis: true */
     var vm = this;
+    var snoocore;
 
     function init() {
       // setup snoocore
       var Snoocore = window.Snoocore;
-      var snoocore = new Snoocore({
+      snoocore = new Snoocore({
         userAgent: 'test@reddit-client3',
         oauth: {
           type: 'implicit', // required when using explicit OAuth
