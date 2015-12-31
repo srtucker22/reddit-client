@@ -121,8 +121,10 @@ md-card-title-text {
   }
 }
 
-.md-media-lg.card-media {
-  padding-right: 16px;
+md-card-title {
+  .md-media-lg.card-media {
+    padding-right: 16px;
+  }
 }
 
 .loading {
