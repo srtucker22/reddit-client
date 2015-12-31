@@ -25,7 +25,7 @@
       scope.login = function() {
         reddit.login().then(function() {
         }, function(err) {
-          console.log(err);
+          console.error(err);
           scope.showError('an error occurred while trying to log you in');
         });
       };
@@ -33,7 +33,7 @@
       scope.logout = function() {
         reddit.logout().then(function() {
         }, function(err) {
-          console.log(err);
+          console.error(err);
           scope.showError('an error occurred while trying to log you out');
         });
       };

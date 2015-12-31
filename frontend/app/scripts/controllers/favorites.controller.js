@@ -10,7 +10,6 @@
     '$mdToast',
     '$scope',
     '$stateParams',
-    '$timeout',
     'reddit'
   ];
 
@@ -19,7 +18,6 @@
     $mdToast,
     $scope,
     $stateParams,
-    $timeout,
     reddit
   ) {
     var vm = this;
@@ -41,6 +39,7 @@
       callbackIndex = reddit.registerCallback('saved', updatePosts);
 
       vm.loading = true;
+
       firstPage();
     }
 
@@ -80,9 +79,9 @@
       );
     }
 
-    $scope.$on('destroy', function() {
-      if (!!callbackIndex) {
-        reddit.unregisterCallback('top', callbackIndex);
+    $scope.$on('$destroy', function() {
+      if (!!callbackIndex || callbackIndex === 0) {
+        reddit.unregisterCallback('saved', callbackIndex);
       }
     });
   }

@@ -1,18 +1,18 @@
 <md-card>
   <md-card-title-media ng-if="(bowser.mobile || bowser.tablet) && data.thumbnail && data.thumbnail !== 'nsfw' && data.thumbnail !== 'self' && data.thumbnail !== 'default'">
     <div class="md-media-lg card-media">
-      <a ng-href="https://www.reddit.com/{{data.permalink}}"><img ng-src="{{data.thumbnail}}"/></a>
+      <a ng-href="https://www.reddit.com/{{data.permalink}}" target="_blank"><img ng-src="{{data.thumbnail}}"/></a>
     </div>
   </md-card-title-media>
   <md-card-title>
     <md-card-title-media ng-if="!bowser.mobile && !bowser.tablet && data.thumbnail && data.thumbnail !== 'nsfw' && data.thumbnail !== 'self' && data.thumbnail !== 'default'">
       <div class="md-media-lg card-media">
-        <a ng-href="https://www.reddit.com/{{data.permalink}}"><img ng-src="{{data.thumbnail}}"/></a>
+        <a ng-href="https://www.reddit.com/{{data.permalink}}" target="_blank"><img ng-src="{{data.thumbnail}}"/></a>
       </div>
     </md-card-title-media>
     <md-card-title-text>
-      <a ng-href="https://www.reddit.com/{{data.permalink}}"><span class="md-headline">{{data.title}}</span></a>
-      <a ng-href="https://www.reddit.com/user/{{data.author}}"><span class="md-subhead">{{data.author}}</span></a>
+      <a ng-href="https://www.reddit.com/{{data.permalink}}" target="_blank"><span class="md-headline">{{data.title}}</span></a>
+      <a ng-href="https://www.reddit.com/user/{{data.author}}" target="_blank"><span class="md-subhead">{{data.author}}</span></a>
     </md-card-title-text>
   </md-card-title>
   <md-card-actions layout="row" layout-align="end center">

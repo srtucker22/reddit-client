@@ -2,8 +2,8 @@
   'use strict';
 
   angular
-  .module('app')
-  .controller('TopCtrl', TopCtrl);
+    .module('app')
+    .controller('TopCtrl', TopCtrl);
 
   TopCtrl.$inject = [
     '$localStorage',
@@ -11,7 +11,6 @@
     '$scope',
     '$state',
     '$stateParams',
-    '$timeout',
     'reddit'
   ];
 
@@ -21,7 +20,6 @@
     $scope,
     $state,
     $stateParams,
-    $timeout,
     reddit
   ) {
     var vm = this;
@@ -62,7 +60,6 @@
     function firstPage() {
       vm.loading = true;
       reddit.firstPage('top').then(function(data) {
-        vm.posts = data;
         vm.loading = false;
       }, function(err) {
         vm.loading = false;
@@ -78,7 +75,6 @@
 
       vm.loading = true;
       reddit.nextPage('top').then(function(data) {
-        vm.posts = data;
         vm.loading = false;
       }, function(err) {
         vm.loading = false;
@@ -95,8 +91,8 @@
       );
     }
 
-    $scope.$on('destroy', function() {
-      if (!!callbackIndex) {
+    $scope.$on('$destroy', function() {
+      if (!!callbackIndex || callbackIndex === 0) {
         reddit.unregisterCallback('top', callbackIndex);
       }
     });

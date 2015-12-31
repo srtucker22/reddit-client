@@ -1,9 +1,9 @@
-'use strict';
-
 (function() {
+  'use strict';
+
   angular
-  .module('app')
-  .factory('reddit', reddit);
+    .module('app')
+    .factory('reddit', reddit);
 
   reddit.$inject = [
     '$http',
@@ -26,20 +26,20 @@
     /*jshint validthis: true */
     var vm = this;
 
-    // setup snoocore
-    var Snoocore = window.Snoocore;
-    var snoocore = new Snoocore({
-      userAgent: 'test@reddit-client3',
-      oauth: {
-        type: 'implicit', // required when using explicit OAuth
-        key: 'JsanZ0aOnw0PVA',
-        redirectUri: redirectUri,
-        // make sure to set all the scopes you need.
-        scope: ['identity', 'read', 'save', 'history']
-      }
-    });
-
     function init() {
+      // setup snoocore
+      var Snoocore = window.Snoocore;
+      var snoocore = new Snoocore({
+        userAgent: 'test@reddit-client3',
+        oauth: {
+          type: 'implicit', // required when using explicit OAuth
+          key: 'JsanZ0aOnw0PVA',
+          redirectUri: redirectUri,
+          // make sure to set all the scopes you need.
+          scope: ['identity', 'read', 'save', 'history']
+        }
+      });
+
       // object to track saved posts
       vm.saved = {
         after: null,
@@ -140,25 +140,27 @@
 
     // get the first page of results
     function firstPage(type) {
-      // if the user isn't logged in, we can only return what has been saved locally
-      if (type === 'saved' && !$rootScope.user) {
-        var defer = $q.defer();
-        notifyObservers('saved');
-        defer.resolve(vm.saved.data);
-        return defer.promise;
-      }
+      return waitForUser().then(function(){
+        // if the user isn't logged in, we can only return what has been saved locally
+        if (type === 'saved' && !$rootScope.user) {
+          var defer = $q.defer();
+          notifyObservers('saved');
+          defer.resolve(vm.saved.data);
+          return defer.promise;
+        }
 
-      // if we have an existing list and it's been less than *interval* min
-      // then let's be additive
-      if (vm[type].data.length && vm[type].lastCheck &&
-      moment().diff(vm.top.lastCheck) < interval) {
-        vm[type].lastCheck = moment();  // reset that last check
-        return previousPage(type);
-      } else {       // otherwise let's just reset
-        vm[type].lastCheck = moment();
-        vm[type].data = [];
-        return nextPage(type);
-      }
+        // if we have an existing list and it's been less than *interval* min
+        // then let's be additive
+        if (vm[type].data.length && vm[type].lastCheck &&
+        moment().diff(vm.top.lastCheck) < interval) {
+          vm[type].lastCheck = moment();  // reset that last check
+          return previousPage(type);
+        } else {       // otherwise let's just reset
+          vm[type].lastCheck = moment();
+          vm[type].data = [];
+          return nextPage(type);
+        }
+      });
     }
 
     // get redirected to reddit for first step in authentication
@@ -176,35 +178,38 @@
     function nextPage(type) {
       var defer = $q.defer();
 
-      // if the user isn't logged in, we can only return what has been saved locally
-      if (type === 'saved' && !$rootScope.user) {
-        notifyObservers('saved');
-        defer.resolve(vm.saved.data);
-        return defer.promise;
-      }
-
-      var params;
-      if (vm[type].after) {
-        params = {
-          after: vm[type].after
-        };
-      }
-
-      snoocore(vm[type].uri).get(params).then(function(res) {
-        if (res.data.after) {
-          vm[type].after = res.data.after;
-          vm[type].data = vm[type].data.concat(res.data.children);
-        } else {
-          vm[type].data = res.data.children;
+      waitForUser().then(function(){
+        // if the user isn't logged in, we can only return what has been saved locally
+        if (type === 'saved' && !$rootScope.user) {
+          notifyObservers('saved');
+          defer.resolve(vm.saved.data);
+          return defer.promise;
         }
-        if (type === 'saved') {
-          updateTopWithSaved();
+
+        var params;
+        if (vm[type].after) {
+          params = {
+            after: vm[type].after
+          };
         }
-        notifyObservers(type);
-        defer.resolve(vm[type].data);
-      }, function(err) {
-        defer.reject(err);
+
+        snoocore(vm[type].uri).get(params).then(function(res) {
+          if (res.data.after) {
+            vm[type].after = res.data.after;
+            vm[type].data = vm[type].data.concat(res.data.children);
+          } else {
+            vm[type].data = res.data.children;
+          }
+          if (type === 'saved') {
+            updateTopWithSaved();
+          }
+          notifyObservers(type);
+          defer.resolve(vm[type].data);
+        }, function(err) {
+          defer.reject(err);
+        });
       });
+
       return defer.promise;
     }
 
@@ -279,6 +284,9 @@
     // refresh authentication via access_token
     function refresh(SAVED_ACCESS_TOKEN) {
       var defer = $q.defer();
+
+      $rootScope.loggingIn = true;
+
       snoocore.auth(SAVED_ACCESS_TOKEN).then(function() {
         // we are authenticated, make a call
         return snoocore('/api/v1/me').get();
@@ -361,7 +369,7 @@
     // no user, accessToken in storage, and the accessToken hasn't expired
     function shouldAttemptRefresh() {
       return (!$rootScope.user && $localStorage.accessToken &&
-        moment($localStorage.accessToken.expires).subtract(moment()) > 0);
+        moment($localStorage.accessToken.expires).diff(moment()) > 0);
     }
 
     // this function is a bit slow due to array type instead of collection
@@ -425,6 +433,22 @@
       });
     }
 
+    // wait for authenitcation to complete and return the current user or null
+    function waitForUser(){
+      var defer = $q.defer();
+      if(!$rootScope.loggingIn){
+        defer.resolve($rootScope.user);
+      } else {
+        var watcher = $rootScope.$watch('loggingIn', function(loggingIn){
+          if(!loggingIn){
+            defer.resolve($rootScope.user);
+            watcher();  // unregister the watcher
+          }
+        });
+      }
+      return defer.promise;
+    }
+
     // expose methods
     return {
       attemptRefresh: attemptRefresh,
@@ -438,7 +462,8 @@
       top: vm.top.data,
       unregisterCallback: unregisterCallback,
       unsave: unsave,
-      user: $rootScope.user
+      user: $rootScope.user,
+      waitForUser: waitForUser
     };
   }
 })();

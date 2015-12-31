@@ -135,52 +135,48 @@ md-card-title-text {
 }
 
 .animate-repeat {
-    transition: 1s linear all;
-}
+  transition: 1s linear all;
 
-.animate-repeat.ng-move,
-.animate-repeat.ng-enter,
-.animate-repeat.ng-leave {
-    transition:all linear 0.5s;
-}
+  &.ng-move,
+  &.ng-enter,
+  &.ng-leave {
+    transition: all linear .5s;
+  }
 
-.animate-repeat.ng-leave.ng-leave-active,
-.animate-repeat.ng-move,
-.animate-repeat.ng-enter {
-    opacity:0;
-}
+  &.ng-leave.ng-leave-active,
+  &.ng-move,
+  &.ng-enter {
+    opacity: 0;
+  }
 
-.animate-repeat.ng-leave,
-.animate-repeat.ng-move.ng-move-active,
-.animate-repeat.ng-enter.ng-enter-active {
-    opacity:1;
-}
+  &.ng-leave,
+  &.ng-move.ng-move-active,
+  &.ng-enter.ng-enter-active {
+    opacity: 1;
+  }
 
-/**
- * Stagger Leave (hide) animation
- */
-.animate-repeat.ng-leave-stagger {
-    /* this will have a 100ms delay between each successive leave animation */
-    transition-delay: 0.2s;
+  // Stagger Leave (hide) animation
+  &.ng-leave-stagger {
+    // this will have a 100ms delay between each successive leave animation
+    transition-delay: .2s;
 
-    /* in case the stagger doesn't work then these two values
-     must be set to 0 to avoid an accidental CSS inheritance */
+    // in case the stagger doesn't work then these two values
+    // must be set to 0 to avoid an accidental CSS inheritance
     transition-duration: 0s;
-}
+  }
 
-/**
- * Stagger ENTER ANIMATION
- */
-.animate-repeat.ng-enter-stagger {
-    /* this will have a 100ms delay between each successive enter animation */
-    transition-delay: 0.2s;
+  // Stagger ENTER ANIMATION
+  &.animate-repeat.ng-enter-stagger {
+    // this will have a 100ms delay between each successive enter animation
+    transition-delay: .2s;
 
-    /* in case the stagger doesn't work then these two values
-     must be set to 0 to avoid an accidental CSS inheritance */
+    // in case the stagger doesn't work then these two values
+    // must be set to 0 to avoid an accidental CSS inheritance
     transition-duration: 0s;
+  }
 }
 
-/*errors*/
+// errors
 md-toast {
-  position: fixed
+  position: fixed;
 }
