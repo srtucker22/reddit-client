@@ -35,7 +35,8 @@
         userAgent: 'test@reddit-client3',
         oauth: {
           type: 'implicit', // required when using explicit OAuth
-          key: 'JsanZ0aOnw0PVA',
+          key: window.location.origin === 'http://localhost:5000' ?
+            'JsanZ0aOnw0PVA' : 'SLfkAxdLrxOD6A',
           redirectUri: redirectUri,
           // make sure to set all the scopes you need.
           scope: ['identity', 'read', 'save', 'history']
