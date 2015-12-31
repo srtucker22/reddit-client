@@ -47,7 +47,6 @@
   },
   "dependencies": {
     "autoprefixer-core": "^5.2.1",
-    "compass": "^0.1.1",
     "ejs": "2.3.3",
     "express": "4.13.3",
     "grunt": "^0.4.5",
