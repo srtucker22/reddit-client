@@ -1,3 +1,5 @@
+'use strict';
+
 describe('Controller: FavoritesCtrl', function () {
 
   // load the controller's module
@@ -32,9 +34,9 @@ describe('Controller: FavoritesCtrl', function () {
         },
         registerCallback: function(val, callback){
           theCallback = callback;
-          return 0;
+          return 1;
         },
-        unregisterCallback: function(val, callback){
+        unregisterCallback: function(val){
           if(val === 'saved'){
             theCallback = null;
             return;
@@ -47,10 +49,15 @@ describe('Controller: FavoritesCtrl', function () {
   }));
 
   var FavoritesCtrl,
-    scope, q;
+    scope,
+    q,
+    mockReddit,
+    mdToast,
+    spyNext;
 
   // Initialize the controller and a mock scope
-  beforeEach(inject(function ($controller, $mdToast, $q, $rootScope, reddit) {
+  beforeEach(inject(function ($controller, $httpBackend, $mdToast, $q, $rootScope, reddit) {
+    $httpBackend.whenGET('views/top.html').respond('');
     q = $q;
     mockReddit = reddit;
     mdToast = $mdToast;

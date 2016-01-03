@@ -10,7 +10,8 @@
     '$localStorage',
     '$q',
     '$rootScope',
-    '$sessionStorage'
+    '$sessionStorage',
+    'snoocore'
   ];
 
   function reddit(
@@ -18,20 +19,19 @@
     $localStorage,
     $q,
     $rootScope,
-    $sessionStorage
+    $sessionStorage,
+    snoocore
   ) {
     var interval = 60 * 1000 * 5; // seconds we'll wait before totally refreshing the top feed going upwards
-
     var redirectUri = window.location.origin;
 
     /*jshint validthis: true */
     var vm = this;
-    var snoocore;
+    var sc;
 
     function init() {
-      // setup snoocore
-      var Snoocore = window.Snoocore;
-      snoocore = new Snoocore({
+      // setup sc
+      sc = snoocore({
         userAgent: 'test@reddit-client3',
         oauth: {
           type: 'implicit', // required when using explicit OAuth
@@ -46,7 +46,7 @@
       // object to track saved posts
       vm.saved = {
         after: null,
-        callbacks: [],
+        callbacks: {},
         data: [],
         lastCheck: null,
         uri: $rootScope.user ? '/user/' + $rootScope.user.name + '/saved' : null
@@ -55,7 +55,7 @@
       // object to track top posts
       vm.top = {
         after: null,
-        callbacks: [],
+        callbacks: {},
         data: [],
         lastCheck: null,
         uri: '/r/all/top'
@@ -113,7 +113,7 @@
     // deauth, remove auth key from localstorage, clear the data
     function logout() {
       var defer = $q.defer();
-      snoocore.deauth().then(function(res) {
+      sc.deauth().then(function(res) {
         $rootScope.user = null;
         delete $localStorage.accessToken;
 
@@ -129,7 +129,7 @@
         // then get some fresh data
         firstPage('top').then(function() {
           // this really shouldn't need to be called
-          // i'm gonna bet this is a snoocore issue -- but no time to fix :(
+          // i'm gonna bet this is a sc issue -- but no time to fix :(
           _.each(vm.top.data, function(val) {
             val.data.saved = false;
           });
@@ -170,7 +170,7 @@
     function getCode() {
       var defer = $q.defer();
       var state = Math.random().toString(36).substring(7);  // create a random state
-      var authUrl = snoocore.getImplicitAuthUrl(state);
+      var authUrl = sc.getImplicitAuthUrl(state);
       $sessionStorage.authState = state;
       defer.resolve();
       window.location = authUrl;
@@ -196,13 +196,10 @@
           };
         }
 
-        snoocore(vm[type].uri).get(params).then(function(res) {
-          if (res.data.after) {
-            vm[type].after = res.data.after;
-            vm[type].data = vm[type].data.concat(res.data.children);
-          } else {
-            vm[type].data = res.data.children;
-          }
+        sc(vm[type].uri).get(params).then(function(res) {
+          vm[type].after = res.data.after;
+          vm[type].data = vm[type].data.concat(res.data.children);
+
           if (type === 'saved') {
             updateTopWithSaved();
           }
@@ -216,33 +213,35 @@
       return defer.promise;
     }
 
-    // call this when you know saved has been changed
+    // call this when you know data has been changed
     function notifyObservers(type) {
       angular.forEach(vm[type].callbacks, function(callback) {
         callback(vm[type]);
       });
     }
 
-    // get the access_token for authentication
+    // authenticate with reddit via auth code
     function postAccessToken(AUTHORIZATION_CODE, STATE) {
       var defer = $q.defer();
 
       if ($sessionStorage.authState !== STATE) {
+        $rootScope.loggingIn = false;
         defer.reject('INVALID_STATE');
+        return defer.promise;
       } else {
         delete $sessionStorage.authState; // clear the auth state
       }
 
       // Authenticate with reddit by passing in the authorization code from the response
-      snoocore.auth(AUTHORIZATION_CODE).then(function() {
+      sc.auth(AUTHORIZATION_CODE).then(function() {
         // add a code that will expire in 1 hour
         $localStorage.accessToken = {
           code: AUTHORIZATION_CODE,
           expires: moment().add(1, 'hour').toDate()
         };
 
-        // Make an OAuth call to show that it is working
-        return snoocore('/api/v1/me').get();
+        // get the user data
+        return sc('/api/v1/me').get();
       })
       .then(function(data) {
         $rootScope.user = data;
@@ -267,7 +266,7 @@
         limit: 100  // lets get as many before the topmost as possible
       };
 
-      snoocore(vm[type].uri).get(params).then(function(res) {
+      sc(vm[type].uri).get(params).then(function(res) {
         vm[type].data = res.data.children.concat(vm[type].data);
         if (res.data.before) {
           previousPage(type);
@@ -290,12 +289,11 @@
 
       $rootScope.loggingIn = true;
 
-      snoocore.auth(SAVED_ACCESS_TOKEN).then(function() {
-        // we are authenticated, make a call
-        return snoocore('/api/v1/me').get();
+      sc.auth(SAVED_ACCESS_TOKEN).then(function() {
+        // we are authenticated, get the user data
+        return sc('/api/v1/me').get();
       }).then(function(data) {
         $rootScope.user = data;
-        $rootScope.user = $rootScope.user;
 
         vm.saved.uri = '/user/' + $rootScope.user.name + '/saved';
         saveDirtySaves();
@@ -311,8 +309,9 @@
 
     // register an observer
     function registerCallback(type, callback) {
-      vm[type].callbacks.push(callback);
-      return vm[type].callbacks.length;
+      var key = Math.random().toString(36).substring(7);
+      vm[type].callbacks[key] = callback;
+      return key;
     }
 
     function save(kind, data) {
@@ -331,14 +330,17 @@
         id: id
       };
 
-      snoocore('/api/save').post(params).then(function(res) {
+      sc('/api/save').post(params).then(function(res) {
         notifyObservers('saved');
         defer.resolve(res);
       }, function(err) {
         defer.reject(err);
       });
+
+      return defer.promise;
     }
 
+    // apply anonymous saves to logged in user
     function saveDirtySaves() {
       if ($localStorage.dirtySaves && $localStorage.dirtySaves.length) {
         // if the user saved data before logging in, save it now
@@ -348,8 +350,7 @@
 
         // wait for all promises to resolve, then get clean saves from reddit
         $q.all(savePromises).then(function(res) {
-          firstPage('saved').then(function(clean) {
-            console.log('override dirty saves', clean);
+          firstPage('saved').then(function() {
             delete $localStorage.dirtySaves;
           }, function(err) {
             delete $localStorage.dirtySaves;
@@ -360,7 +361,7 @@
           console.error(err);
         });
       } else {
-        firstPage('saved').then(function(clean) {
+        firstPage('saved').then(function() {
           // upload some favs
         }, function(err) {
           console.error(err);
@@ -383,17 +384,21 @@
           keyMap[val.data.id] = index;
         });
         _.each(vm.saved.data, function(val) {
-          vm.top.data[keyMap[val.data.id]] = val;
+          if (!!keyMap[val.data.id]) {
+            vm.top.data[keyMap[val.data.id]] = val;
+          }
         });
         notifyObservers('top');
       }
     }
 
-    function unregisterCallback(type, index) {
-      vm[type].callbacks.splice(index, 1);
+    function unregisterCallback(type, key) {
+      delete vm[type].callbacks[key];
     }
 
     function unsave(kind, data) {
+      var defer = $q.defer();
+
       function removeUnsaved() {
 
         // we have to keep our local storage happy
@@ -416,24 +421,20 @@
         vm.saved.data = newData;
         modifyTop();
         notifyObservers('saved');
+        defer.resolve(vm.saved.length);
       }
 
       if (!$rootScope.user) {
-        var defer = $q.defer();
         removeUnsaved();
-        defer.resolve(vm.saved.length);
-        return defer.promise;
+      } else {
+        sc('/api/unsave').post({
+          id: kind + '_' + data.id
+        }).then(function() {
+          removeUnsaved();
+        });
       }
 
-      var id = kind + '_' + data.id;
-
-      var params = {
-        id: id
-      };
-
-      snoocore('/api/unsave').post(params).then(function() {
-        removeUnsaved();
-      });
+      return defer.promise;
     }
 
     // wait for authenitcation to complete and return the current user or null
@@ -461,11 +462,10 @@
       nextPage: nextPage,
       registerCallback: registerCallback,
       save: save,
-      saved: vm.saved.data,
-      top: vm.top.data,
+      saved: vm.saved,
+      top: vm.top,
       unregisterCallback: unregisterCallback,
       unsave: unsave,
-      user: $rootScope.user,
       waitForUser: waitForUser
     };
   }

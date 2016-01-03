@@ -157,16 +157,6 @@ md-card-title {
     opacity: 1;
   }
 
-  // Stagger Leave (hide) animation
-  &.ng-leave-stagger {
-    // this will have a 100ms delay between each successive leave animation
-    transition-delay: .2s;
-
-    // in case the stagger doesn't work then these two values
-    // must be set to 0 to avoid an accidental CSS inheritance
-    transition-duration: 0s;
-  }
-
   // Stagger ENTER ANIMATION
   &.animate-repeat.ng-enter-stagger {
     // this will have a 100ms delay between each successive enter animation

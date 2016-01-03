@@ -10,6 +10,8 @@
     'ui.router'
   ])
     .run(['$rootScope','reddit', function($rootScope, reddit) {
-      reddit.attemptRefresh();
+      reddit.attemptRefresh().then(function(){
+        !$rootScope.$$phase && $rootScope.$apply();
+      });
     }]);
 })();

@@ -24,7 +24,7 @@
     vm.nextPage = nextPage;
     vm.showError = showError;
 
-    var callbackIndex;
+    var callbackKey;
 
     activate();
 
@@ -33,10 +33,11 @@
       var updatePosts = function(saves) {
         vm.posts = saves.data;
         vm.more = saves.after;
+        !$scope.$$phase && $scope.$apply();
       };
 
       // register the callback for data changes
-      callbackIndex = reddit.registerCallback('saved', updatePosts);
+      callbackKey = reddit.registerCallback('saved', updatePosts);
 
       vm.loading = true;
 
@@ -80,9 +81,7 @@
     }
 
     $scope.$on('$destroy', function() {
-      if (!!callbackIndex || callbackIndex === 0) {
-        reddit.unregisterCallback('saved', callbackIndex);
-      }
+      !!callbackKey && reddit.unregisterCallback('saved', callbackKey);
     });
   }
 })();

@@ -11,8 +11,10 @@
   "strict": true,
   "undef": true,
   "unused": true,
+  "expr": true,
   "globals": {
     "angular": false,
-    "inject": false
+    "inject": false,
+    "moment": false
   }
 }

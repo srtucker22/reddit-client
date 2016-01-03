@@ -1,3 +1,5 @@
+'use strict';
+
 describe('Controller: TopCtrl', function () {
 
   // load the controller's module
@@ -32,9 +34,9 @@ describe('Controller: TopCtrl', function () {
         },
         registerCallback: function(val, callback){
           theCallback = callback;
-          return 0;
+          return 1;
         },
-        unregisterCallback: function(val, callback){
+        unregisterCallback: function(val){
           if(val === 'top'){
             theCallback = null;
             return;
@@ -46,11 +48,18 @@ describe('Controller: TopCtrl', function () {
     }]);
   }));
 
-  var TopCtrl,
-    scope, q;
+  var
+    TopCtrl,
+    scope,
+    q,
+    mockReddit,
+    mdToast,
+    spyNext;
 
   // Initialize the controller and a mock scope
-  beforeEach(inject(function ($controller, $mdToast, $q, $rootScope, reddit) {
+  beforeEach(inject(function ($controller, $httpBackend, $mdToast, $q, $rootScope, reddit) {
+    $httpBackend.whenGET('views/top.html').respond('');
+
     q = $q;
     mockReddit = reddit;
     mdToast = $mdToast;
